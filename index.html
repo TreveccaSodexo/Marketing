@@ -15,7 +15,6 @@
       /* Light theme */
       --bg:#ffffff;
       --card:#ffffff;
-      --card2:#ffffff;
       --text:#000000;
       --muted:#444444;
       --line:rgba(0,0,0,.14);
@@ -40,7 +39,7 @@
       position: sticky;
       top:0;
       z-index: 10;
-      background: rgba(255,255,255,.92);
+      background: rgba(255,255,255,.94);
       border-bottom:1px solid var(--line);
       backdrop-filter: blur(10px);
     }
@@ -264,12 +263,6 @@
       font-size:14px;
       display:flex;align-items:center;justify-content:center;
       cursor:pointer;
-    }
-
-    .footer-card{
-      padding:14px;
-      display:grid;
-      gap:10px;
     }
 
     .small{
@@ -566,8 +559,8 @@
     t.textContent = msg;
     Object.assign(t.style,{
       position:"fixed",left:"50%",bottom:"18px",transform:"translateX(-50%)",
-      background:"rgba(0,0,0,.85)",border:"1px solid rgba(0,0,0,.2)",
-      padding:"10px 12px",borderRadius:"14px",color:"#fff",fontWeight:"800",
+      background:"rgba(0,0,0,.88)",border:"1px solid rgba(0,0,0,.2)",
+      padding:"10px 12px",borderRadius:"14px",color:"#fff",fontWeight:"900",
       zIndex:9999,boxShadow:"0 10px 25px rgba(0,0,0,.25)"
     });
     document.body.appendChild(t);
@@ -663,8 +656,104 @@ ${top || "None — great work."}`
         if(input.checked) toggle.classList.add("on");
 
         input.addEventListener("change", ()=>{
-          stat
+          state.checks[item.id] = input.checked;
+          toggle.classList.toggle("on", input.checked);
+          updateHeader();
+          localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        });
 
+        body.appendChild(row);
+        row.appendChild(left);
+        row.appendChild(toggle);
+      });
 
+      card.appendChild(body);
+      container.appendChild(card);
+    });
 
+    // Wire comment changes
+    container.querySelectorAll("textarea[data-comment]").forEach(t=>{
+      t.addEventListener("input", ()=>{
+        const id = t.getAttribute("data-comment");
+        state.comments[id] = t.value;
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+      });
+    });
 
+    updateHeader();
+  }
+
+  // --------- Photos ----------
+  function addPhotos(files){
+    [...files].forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        state.photos.push({ name: file.name, dataUrl: reader.result });
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        renderPhotos();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotos(){
+    const grid = $("photoGrid");
+    grid.innerHTML = "";
+    state.photos.forEach((p, idx)=>{
+      const d = document.createElement("div");
+      d.className = "thumb";
+      d.innerHTML = `<img alt="photo ${idx+1}" src="${p.dataUrl}"><div class="x" title="Remove">✕</div>`;
+      d.querySelector(".x").addEventListener("click", ()=>{
+        state.photos.splice(idx,1);
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        renderPhotos();
+      });
+      grid.appendChild(d);
+    });
+  }
+
+  // --------- Init ----------
+  load();
+
+  // Fill fields
+  $("site").value = state.site || "";
+  $("manager").value = state.manager || "";
+  $("meal").value = state.meal || "";
+  $("time").value = state.time || "";
+  $("overallNotes").value = state.overallNotes || "";
+  $("photoNotes").value = state.photoNotes || "";
+  $("actionsNext").value = state.actionsNext || "";
+  $("shareNotes").value = state.shareNotes || "";
+
+  // Display date
+  $("runDate").textContent = state.runDate;
+
+  // Field listeners
+  $("site").addEventListener("input", e=>{ state.site = e.target.value; updateHeader(); localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("manager").addEventListener("input", e=>{ state.manager = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("meal").addEventListener("input", e=>{ state.meal = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("time").addEventListener("input", e=>{ state.time = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("overallNotes").addEventListener("input", e=>{ state.overallNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("photoNotes").addEventListener("input", e=>{ state.photoNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("actionsNext").addEventListener("input", e=>{ state.actionsNext = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("shareNotes").addEventListener("input", e=>{ state.shareNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+
+  // Buttons
+  $("btnSave").addEventListener("click", persist);
+  $("btnExport").addEventListener("click", exportJSON);
+  $("btnSummary").addEventListener("click", showSummary);
+  $("btnReset").addEventListener("click", ()=>{
+    if(confirm("Reset everything? This clears local saved data.")) resetAll();
+  });
+
+  // Photo inputs
+  $("photoInputCamera").addEventListener("change", e=> addPhotos(e.target.files));
+  $("photoInputLibrary").addEventListener("change", e=> addPhotos(e.target.files));
+
+  // Render UI
+  render();
+  renderPhotos();
+  updateHeader();
+</script>
+</body>
+</html>

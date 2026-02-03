@@ -1,215 +1,296 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Resident Dining Marketing Checklist</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resident Dining Marketing & Experience Checklist</title>
+  <meta name="theme-color" content="#5B2D8B" />
+  <style>
+    :root{
+      /* Trevecca Purple */
+      --purple:#5B2D8B;
+      --purple2:#7A3EB7;
+      --purpleSoft:#EFE7F7;
 
-<style>
-:root{
-  --purple:#5B2D8B;
-  --purple-light:#efe8f6;
-  --black:#000;
-  --gray:#555;
-  --border:#d9d9d9;
-}
+      /* Light theme */
+      --bg:#ffffff;
+      --card:#ffffff;
+      --card2:#ffffff;
+      --text:#000000;
+      --muted:#444444;
+      --line:rgba(0,0,0,.14);
+      --chip:rgba(91,45,139,.06);
 
-*{box-sizing:border-box}
+      --shadow: 0 10px 24px rgba(0,0,0,.10);
+      --radius:18px;
+    }
 
-body{
-  margin:0;
-  background:#fff;
-  color:var(--black);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-}
+    *{box-sizing:border-box}
 
-header{
-  position:sticky;
-  top:0;
-  background:#fff;
-  border-bottom:2px solid var(--border);
-  z-index:10;
-}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background: var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
 
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:14px;
-}
+    header{
+      position: sticky;
+      top:0;
+      z-index: 10;
+      background: rgba(255,255,255,.92);
+      border-bottom:1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
 
-h1,h2{
-  margin:0;
-  font-weight:800;
-}
+    .wrap{max-width:860px;margin:0 auto;padding:14px 14px 28px;}
 
-h1{font-size:18px}
-h2{font-size:16px}
+    .topbar{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    }
 
-p,label{
-  font-weight:700;
-}
+    .title{
+      display:flex;flex-direction:column;gap:2px;min-width:240px;
+    }
 
-.small{
-  font-size:12px;
-  color:var(--gray);
-}
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:900;
+      color:#000;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
 
-.card{
-  border:2px solid var(--border);
-  border-radius:14px;
-  margin:14px 0;
-  background:#fff;
-}
+    .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-.card-header{
-  padding:12px 14px;
-  border-bottom:2px solid var(--border);
-}
+    button, .btn{
+      border:1px solid rgba(91,45,139,.35);
+      background: #ffffff;
+      color:#000;
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      touch-action: manipulation;
+    }
+    button:active{transform: translateY(1px)}
+    button:hover{background: rgba(91,45,139,.06)}
 
-.card-body{
-  padding:14px;
-}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(91,45,139,.95), rgba(122,62,183,.85));
+      border-color: rgba(91,45,139,.65);
+      color:#fff;
+    }
+    .btn.primary:hover{
+      background: linear-gradient(135deg, rgba(91,45,139,1), rgba(122,62,183,.92));
+    }
 
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
+    .pill{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;
+    }
 
-@media(max-width:600px){
-  .row{grid-template-columns:1fr}
-}
+    .chip{
+      background: var(--chip);
+      border:1px solid rgba(0,0,0,.12);
+      padding:8px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;gap:8px;align-items:center;
+      font-weight:800;
+    }
+    .chip b{color:#000;font-weight:900}
 
-input, textarea{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:2px solid var(--border);
-  font-weight:700;
-  font-size:14px;
-}
+    main{padding-top:10px}
 
-textarea{min-height:80px}
+    .card{
+      background: var(--card);
+      border:1px solid rgba(0,0,0,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 12px 0;
+      overflow:hidden;
+    }
 
-.item{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:12px 0;
-  border-bottom:1px dashed var(--border);
-}
+    .card-h{
+      padding:14px 14px 10px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      border-bottom:1px solid rgba(0,0,0,.12);
+      background: rgba(91,45,139,.03);
+    }
+    .card-h h2{
+      margin:0;
+      font-size:15px;
+      font-weight:900;
+      color:#000;
+    }
+    .card-h .meta{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.2;
+      text-align:right;
+      font-weight:800;
+    }
 
-.item:last-child{border-bottom:none}
+    .card-b{padding:12px 14px 14px}
 
-.label{
-  font-weight:800;
-  font-size:15px;
-}
+    .item{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      padding:12px 0;
+      border-bottom:1px dashed rgba(0,0,0,.16);
+    }
+    .item:last-child{border-bottom:none}
 
-.toggle{
-  width:52px;
-  height:30px;
-  border-radius:999px;
-  border:2px solid var(--purple);
-  background:#fff;
-  position:relative;
-  cursor:pointer;
-  flex-shrink:0;
-}
+    .item .text{min-width:0}
 
-.toggle input{
-  position:absolute;
-  inset:0;
-  opacity:0;
-}
+    .item .text .label{
+      font-size:14px;
+      font-weight:900;
+      margin:0 0 3px;
+      color:#000;
+    }
+    .item .text .hint{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      font-weight:800;
+    }
 
-.knob{
-  width:24px;
-  height:24px;
-  border-radius:999px;
-  background:#bbb;
-  position:absolute;
-  top:2px;
-  left:2px;
-  transition:.2s;
-}
+    /* Bubble toggle (Trevecca purple) */
+    .toggle{
+      flex:0 0 auto;
+      width:56px;height:34px;border-radius:999px;
+      background: #fff;
+      border:2px solid rgba(91,45,139,.55);
+      position:relative;
+      cursor:pointer;
+      transition: background .2s ease, border-color .2s ease;
+      outline: none;
+    }
+    .toggle input{opacity:0;position:absolute;inset:0;margin:0}
 
-.toggle.on{
-  background:var(--purple-light);
-}
+    .knob{
+      width:28px;height:28px;border-radius:999px;
+      background: rgba(0,0,0,.18);
+      position:absolute;top:2px;left:2px;
+      transition: transform .18s ease, background .2s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,.20);
+    }
 
-.toggle.on .knob{
-  transform:translateX(22px);
-  background:var(--purple);
-}
+    .toggle.on{
+      background: var(--purpleSoft);
+      border-color: rgba(91,45,139,.85);
+    }
+    .toggle.on .knob{
+      transform: translateX(22px);
+      background: var(--purple);
+    }
 
-.photos{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:10px;
-}
+    .subgrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
 
-.thumb{
-  width:90px;
-  height:90px;
-  border:2px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-  position:relative;
-}
+    .field{
+      background: #ffffff;
+      border:1px solid rgba(0,0,0,.14);
+      border-radius: 16px;
+      padding:10px;
+    }
+    .field label{
+      display:block;
+      font-size:12px;
+      color:#000;
+      margin-bottom:6px;
+      font-weight:900;
+    }
 
-.thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+    textarea, input[type="text"], input[type="date"], input[type="time"]{
+      width:100%;
+      border:1px solid rgba(0,0,0,.18);
+      background: #ffffff;
+      color: #000;
+      border-radius: 12px;
+      padding:10px 10px;
+      font-size:14px;
+      font-weight:800;
+      outline:none;
+    }
+    textarea{min-height:86px;resize:vertical}
 
-.thumb .remove{
-  position:absolute;
-  top:4px;
-  right:4px;
-  width:22px;
-  height:22px;
-  background:#000;
-  color:#fff;
-  font-size:14px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width:520px){
+      .row{grid-template-columns:1fr}
+      .card-h .meta{text-align:left}
+      .topbar{gap:12px}
+      .actions{width:100%}
+      .actions button{flex:1}
+    }
 
-button{
-  border:2px solid var(--purple);
-  background:#fff;
-  color:#000;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-}
+    .photos{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;
+    }
+    .thumb{
+      width:92px;height:92px;border-radius:14px;
+      border:1px solid rgba(0,0,0,.16);
+      background: #fff;
+      overflow:hidden;
+      position:relative;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .thumb .x{
+      position:absolute;top:6px;right:6px;
+      width:26px;height:26px;border-radius:999px;
+      border:1px solid rgba(0,0,0,.20);
+      background: rgba(0,0,0,.75);
+      color:#fff;
+      font-size:14px;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+    }
 
-button.primary{
-  background:var(--purple);
-  color:#fff;
-}
+    .footer-card{
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
 
-.progress{
-  height:8px;
-  background:#eee;
-  border-radius:999px;
-  overflow:hidden;
-  margin-top:10px;
-}
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      font-weight:800;
+    }
 
-.progress div{
-  height:100%;
-  background:var(--purple);
-  width:0%;
-}
-</style>
+    .progress{
+      height:10px;border-radius:999px;border:1px solid rgba(0,0,0,.18);
+      background: rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(91,45,139,1), rgba(122,62,183,.85));
+      transition: width .25s ease;
+    }
+  </style>
 </head>
 
 <body>
@@ -485,9 +566,9 @@ button.primary{
     t.textContent = msg;
     Object.assign(t.style,{
       position:"fixed",left:"50%",bottom:"18px",transform:"translateX(-50%)",
-      background:"rgba(0,0,0,.75)",border:"1px solid rgba(255,255,255,.14)",
-      padding:"10px 12px",borderRadius:"14px",color:"#fff",fontWeight:"650",
-      zIndex:9999,boxShadow:"0 10px 25px rgba(0,0,0,.35)"
+      background:"rgba(0,0,0,.85)",border:"1px solid rgba(0,0,0,.2)",
+      padding:"10px 12px",borderRadius:"14px",color:"#fff",fontWeight:"800",
+      zIndex:9999,boxShadow:"0 10px 25px rgba(0,0,0,.25)"
     });
     document.body.appendChild(t);
     setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .25s ease"}, 1300);
@@ -582,107 +663,8 @@ ${top || "None — great work."}`
         if(input.checked) toggle.classList.add("on");
 
         input.addEventListener("change", ()=>{
-          state.checks[item.id] = input.checked;
-          toggle.classList.toggle("on", input.checked);
-          updateHeader();
-          // autosave lightly
-          localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
-        });
+          stat
 
-        body.appendChild(row);
-        row.appendChild(left);
-        row.appendChild(toggle);
-      });
 
-      card.appendChild(body);
-      container.appendChild(card);
-    });
-
-    // Wire comment changes
-    container.querySelectorAll("textarea[data-comment]").forEach(t=>{
-      t.addEventListener("input", ()=>{
-        const id = t.getAttribute("data-comment");
-        state.comments[id] = t.value;
-        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
-      });
-    });
-
-    updateHeader();
-  }
-
-  // --------- Photos ----------
-  function addPhotos(files){
-    [...files].forEach(file=>{
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        state.photos.push({ name: file.name, dataUrl: reader.result });
-        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
-        renderPhotos();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function renderPhotos(){
-    const grid = $("photoGrid");
-    grid.innerHTML = "";
-    state.photos.forEach((p, idx)=>{
-      const d = document.createElement("div");
-      d.className = "thumb";
-      d.innerHTML = `<img alt="photo ${idx+1}" src="${p.dataUrl}"><div class="x" title="Remove">✕</div>`;
-      d.querySelector(".x").addEventListener("click", ()=>{
-        state.photos.splice(idx,1);
-        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
-        renderPhotos();
-      });
-      grid.appendChild(d);
-    });
-  }
-
-  // --------- Init ----------
-  load();
-
-  // Fill fields
-  $("site").value = state.site || "";
-  $("manager").value = state.manager || "";
-  $("meal").value = state.meal || "";
-  $("time").value = state.time || "";
-  $("overallNotes").value = state.overallNotes || "";
-  $("photoNotes").value = state.photoNotes || "";
-  $("actionsNext").value = state.actionsNext || "";
-  $("shareNotes").value = state.shareNotes || "";
-
-  // Set display date
-  $("runDate").textContent = state.runDate;
-
-  // Field listeners
-  $("site").addEventListener("input", e=>{ state.site = e.target.value; updateHeader(); localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("manager").addEventListener("input", e=>{ state.manager = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("meal").addEventListener("input", e=>{ state.meal = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("time").addEventListener("input", e=>{ state.time = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("overallNotes").addEventListener("input", e=>{ state.overallNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("photoNotes").addEventListener("input", e=>{ state.photoNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("actionsNext").addEventListener("input", e=>{ state.actionsNext = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-  $("shareNotes").addEventListener("input", e=>{ state.shareNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
-
-  // Buttons
-  $("btnSave").addEventListener("click", persist);
-  $("btnExport").addEventListener("click", exportJSON);
-  $("btnSummary").addEventListener("click", showSummary);
-  $("btnReset").addEventListener("click", ()=>{
-    if(confirm("Reset everything? This clears local saved data.")) resetAll();
-  });
-
-  // Photo inputs
-  $("photoInputCamera").addEventListener("change", e=> addPhotos(e.target.files));
-  $("photoInputLibrary").addEventListener("change", e=> addPhotos(e.target.files));
-
-  // Render UI
-  render();
-  renderPhotos();
-  updateHeader();
-</script>
-</body>
-</html>
 
 

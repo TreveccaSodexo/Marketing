@@ -81,6 +81,7 @@
       font-size:13px;
       transition: transform .06s ease, background .2s ease, border-color .2s ease;
       touch-action: manipulation;
+      white-space: nowrap;
     }
     button:active{transform: translateY(1px)}
     button:hover{background: rgba(91,45,139,.06)}
@@ -299,7 +300,8 @@
         <button class="btn" id="btnReset" type="button">Reset</button>
         <button class="btn" id="btnSave" type="button">Save</button>
         <button class="btn" id="btnExport" type="button">Export JSON</button>
-        <button class="btn primary" id="btnSummary" type="button">Summary</button>
+        <button class="btn" id="btnSummary" type="button">Summary</button>
+        <button class="btn primary" id="btnSubmit" type="button">Submit</button>
       </div>
     </div>
 
@@ -408,6 +410,11 @@
 </main>
 
 <script>
+  // ===========================
+  // Formspree (Option A / JSON)
+  // ===========================
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xaqbgyqo";
+
   // --------- Checklist Data (editable) ----------
   const CHECKLIST = [
     {
@@ -513,7 +520,7 @@
     photoNotes: "",
     actionsNext: "",
     shareNotes: "",
-    photos: [], // {name, dataUrl}
+    photos: [], // {name, dataUrl} (kept local; NOT submitted in Option A)
     checks: {}, // itemId -> true/false
     comments: {} // itemId -> string
   };
@@ -573,7 +580,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `resident-dining-checklist_${state.site || "site"}_${state.runDate}.json`;
+    a.download = `resident-dining-checklist_${(state.site || "site").replace(/\s+/g,"-")}_${state.runDate}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -596,6 +603,63 @@ Completion: ${done}/${total} (${pct}%)
 Top gaps (first 8):
 ${top || "None — great work."}`
     );
+  }
+
+  // ===========================
+  // Formspree Submit (Option A)
+  // ===========================
+  async function submitToFormspree(){
+    const completion = pctComplete();
+
+    const checked = [];
+    const unchecked = [];
+    for (const section of CHECKLIST){
+      for (const item of section.items){
+        (state.checks[item.id] ? checked : unchecked).push(item.label);
+      }
+    }
+
+    const commentLines = [];
+    for (const section of CHECKLIST){
+      for (const item of section.items){
+        const c = (state.comments[item.id] || "").trim();
+        if (c) commentLines.push(`• ${item.label}: ${c}`);
+      }
+    }
+
+    const payload = {
+      subject: `Resident Dining Checklist – ${state.site || "Site"} – ${state.runDate}`,
+      runDate: state.runDate,
+      site: state.site || "",
+      manager: state.manager || "",
+      meal: state.meal || "",
+      time: state.time || "",
+      completion: `${completion.done}/${completion.total} (${completion.pct}%)`,
+      overallNotes: state.overallNotes || "",
+      photoNotes: state.photoNotes || "",
+      actionsNext: state.actionsNext || "",
+      shareNotes: state.shareNotes || "",
+      checkedItems: checked.join("\n"),
+      uncheckedItems: unchecked.join("\n"),
+      comments: commentLines.join("\n") || "(none)",
+      note: "Photos are stored locally on the device (not submitted in Option A)."
+    };
+
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok){
+      toast("Submitted ✓ (Formspree)");
+    } else {
+      const data = await res.json().catch(()=>({}));
+      alert("Formspree submission failed. " + (data?.error || "Please try again."));
+    }
   }
 
   // --------- Render ----------
@@ -683,7 +747,7 @@ ${top || "None — great work."}`
     updateHeader();
   }
 
-  // --------- Photos ----------
+  // --------- Photos (local only) ----------
   function addPhotos(files){
     [...files].forEach(file=>{
       const reader = new FileReader();
@@ -746,7 +810,23 @@ ${top || "None — great work."}`
     if(confirm("Reset everything? This clears local saved data.")) resetAll();
   });
 
-  // Photo inputs
+  // Submit button (Formspree)
+  $("btnSubmit").addEventListener("click", async ()=>{
+    // Minimal validation so submissions are useful
+    if (!state.site?.trim() || !state.manager?.trim()){
+      alert("Please fill out Site and Manager before submitting.");
+      return;
+    }
+    if (!confirm("Submit this checklist to Formspree for email + record keeping?")) return;
+
+    try{
+      await submitToFormspree();
+    }catch(e){
+      alert("Submission failed. Check your internet connection and try again.");
+    }
+  });
+
+  // Photo inputs (local only)
   $("photoInputCamera").addEventListener("change", e=> addPhotos(e.target.files));
   $("photoInputLibrary").addEventListener("change", e=> addPhotos(e.target.files));
 

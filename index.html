@@ -213,119 +213,476 @@ button.primary{
 </head>
 
 <body>
-
 <header>
-  <div class="container">
-    <h1>Resident Dining Marketing & Experience Checklist</h1>
-    <div class="small">Sodexo One & All • Mobile Checklist</div>
-    <div class="progress"><div id="progressBar"></div></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Resident Dining – Marketing & Experience Checklist</h1>
+        <p>Sodexo One & All • Mobile daily ops format</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="btnReset" type="button">Reset</button>
+        <button class="btn" id="btnSave" type="button">Save</button>
+        <button class="btn" id="btnExport" type="button">Export JSON</button>
+        <button class="btn primary" id="btnSummary" type="button">Summary</button>
+      </div>
+    </div>
+
+    <div class="pill">
+      <div class="chip"><span>Site:</span> <b id="siteName">—</b></div>
+      <div class="chip"><span>Date:</span> <b id="runDate">—</b></div>
+      <div class="chip"><span>Completion:</span> <b id="pct">0%</b></div>
+    </div>
+
+    <div class="progress" aria-label="completion progress">
+      <div id="bar"></div>
+    </div>
   </div>
 </header>
 
-<div class="container">
+<main class="wrap">
 
-<div class="card">
-  <div class="card-header"><h2>Run Details</h2></div>
-  <div class="card-body row">
-    <input id="site" placeholder="Site / Campus">
-    <input id="manager" placeholder="Manager">
-    <input id="meal" placeholder="Meal Period">
-    <input id="time" type="time">
-  </div>
-</div>
+  <!-- Header fields -->
+  <section class="card">
+    <div class="card-h">
+      <h2>Run Details</h2>
+      <div class="meta">Add details for reporting & consistency</div>
+    </div>
+    <div class="card-b">
+      <div class="row">
+        <div class="field">
+          <label for="site">Site / Campus / Unit</label>
+          <input id="site" type="text" placeholder="e.g., Maple Hall Dining" />
+        </div>
+        <div class="field">
+          <label for="manager">Manager / Marketer</label>
+          <input id="manager" type="text" placeholder="Name" />
+        </div>
+      </div>
 
-<div id="checklist"></div>
+      <div class="row" style="margin-top:10px">
+        <div class="field">
+          <label for="meal">Meal Period</label>
+          <input id="meal" type="text" placeholder="Breakfast / Lunch / Dinner" />
+        </div>
+        <div class="field">
+          <label for="time">Time (optional)</label>
+          <input id="time" type="time" />
+        </div>
+      </div>
 
-<div class="card">
-  <div class="card-header"><h2>Photos</h2></div>
-  <div class="card-body">
-    <input type="file" accept="image/*" capture="environment" multiple id="photoInput">
-    <div class="photos" id="photoGrid"></div>
-  </div>
-</div>
+      <div class="field" style="margin-top:10px">
+        <label for="overallNotes">Overall Notes (optional)</label>
+        <textarea id="overallNotes" placeholder="Quick summary of the day: wins, gaps, follow-ups..."></textarea>
+      </div>
+    </div>
+  </section>
 
-<div class="card">
-  <div class="card-header"><h2>End of Day Notes</h2></div>
-  <div class="card-body">
-    <textarea placeholder="Actions, issues, follow-ups"></textarea>
-  </div>
-</div>
+  <!-- SECTIONS -->
+  <div id="sections"></div>
 
-<button class="primary" onclick="save()">Save</button>
+  <!-- Photos + closeout -->
+  <section class="card">
+    <div class="card-h">
+      <h2>Photos</h2>
+      <div class="meta">Capture merchandising, signage, before/after</div>
+    </div>
+    <div class="card-b">
+      <div class="row">
+        <div class="field">
+          <label>Add photos (camera)</label>
+          <input id="photoInputCamera" type="file" accept="image/*" capture="environment" multiple />
+          <div class="small">On mobile, this opens the camera. You can take multiple photos.</div>
+        </div>
+        <div class="field">
+          <label>Add photos (library)</label>
+          <input id="photoInputLibrary" type="file" accept="image/*" multiple />
+          <div class="small">Use this to upload existing images from your phone.</div>
+        </div>
+      </div>
 
-</div>
+      <div class="photos" id="photoGrid" aria-label="photo thumbnails"></div>
+
+      <div class="field" style="margin-top:12px">
+        <label for="photoNotes">Photo Notes</label>
+        <textarea id="photoNotes" placeholder="What do these photos show? What needs follow-up?"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h">
+      <h2>End-of-Day Closeout</h2>
+      <div class="meta">Capture actions & accountability</div>
+    </div>
+    <div class="card-b">
+      <div class="field">
+        <label for="actionsNext">Actions / Owners / Next Steps</label>
+        <textarea id="actionsNext" placeholder="Example: Replace outdated signage (Owner: Sam, Due: Fri)"></textarea>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label for="shareNotes">What should be shared with Ops leadership?</label>
+        <textarea id="shareNotes" placeholder="Key wins, recurring issues, student feedback trends..."></textarea>
+      </div>
+      <div class="small">
+        Tip: Use <b>Export JSON</b> to send your run to a teammate or to paste into another system.
+      </div>
+    </div>
+  </section>
+
+</main>
 
 <script>
-const items=[
-"Welcome signage clean and updated",
-"Greeter positioned and informed",
-"Digital screens working",
-"Dining room clean and set",
-"Food platforms food-forward",
-"Item identifiers visible",
-"Desserts merchandised properly",
-"Guests greeted within 6 feet",
-"Uniforms and appearance on brand",
-"Signage compliant and consistent"
-];
+  // --------- Checklist Data (editable) ----------
+  const CHECKLIST = [
+    {
+      id: "pre_service",
+      title: "Daily Brand & Experience Readiness (Pre-Service)",
+      subtitle: "Entrance, first impression, dining room atmosphere",
+      items: [
+        { id:"welcome_signage", label:"Welcome signage installed, clean, aligned with current messaging", hint:"No outdated collateral; One & All inclusive tone." },
+        { id:"greeter_ready", label:"Greeter positioned & trained on menu highlights/allergens/promos", hint:"First 10 seconds set the tone." },
+        { id:"digitals_working", label:"Digital screens / content functioning and updated", hint:"No expired promos." },
+        { id:"space_clear", label:"Entrance free of clutter and visual distractions", hint:"Keep it intentional and inviting." },
+        { id:"lighting_audio", label:"Lighting & audio match brand tone and meal period", hint:"Comfortable, student-friendly." },
+        { id:"dining_room_ready", label:"Dining room clean, high-touch areas checked, tables set", hint:"Work with campus partners if needed." }
+      ]
+    },
+    {
+      id: "platform_marketing",
+      title: "Platform-Level Marketing & Merchandising",
+      subtitle: "Food-forward execution and visual standards",
+      items: [
+        { id:"food_first", label:"Platforms are food-first (minimal non-essential items)", hint:"Allow food to be the focal point." },
+        { id:"fresh_pan", label:"Fresh pans used; no refilling on the line", hint:"Replace with new pan from kitchen." },
+        { id:"garnish", label:"Garnishes used intentionally and consistently", hint:"Small detail = big impact." },
+        { id:"negative_space", label:"Negative space respected (no overcrowding)", hint:"Avoid clutter; keep it clean." },
+        { id:"identifiers", label:"Item identifiers displayed; readable; allergens/nutrition accurate", hint:"Use Printables+/digital templates where available." },
+        { id:"sneezeguards", label:"Sneezeguards cleaned before service; no writing/taping", hint:"Keep spotless and clear." }
+      ]
+    },
+    {
+      id: "desserts_peripherals",
+      title: "Desserts & Peripherals",
+      subtitle: "Finish strong; use desserts to elevate the experience",
+      items: [
+        { id:"dessert_height", label:"Desserts merchandised with height variation (risers/trays)", hint:"Create visual interest." },
+        { id:"dessert_timing", label:"Dessert levels staged for peak times (not all out too early)", hint:"Match peak hour." },
+        { id:"portioned", label:"Individual portions used where required (no bulk pudding/gelatin)", hint:"Garnish where appropriate." },
+        { id:"dessert_fill", label:"Desserts used to fill gaps / unused wells appropriately", hint:"Merchandising with purpose." }
+      ]
+    },
+    {
+      id: "engagement",
+      title: "Daily Engagement & Programming",
+      subtitle: "Experiences Matter execution + campus connection",
+      items: [
+        { id:"six_feet_greet", label:"Guests greeted within 6 feet; eye contact made", hint:"Simple behavior, huge impact." },
+        { id:"taste_tell", label:"Staff can explain ingredients, preparation, and allergens", hint:"Taste test + confident service." },
+        { id:"daily_highlights", label:"Daily highlights communicated verbally and visually", hint:"Feature items, wellness, specials." },
+        { id:"campus_alignment", label:"Coordination with campus calendar (tours/events/exams)", hint:"Dining is a destination." },
+        { id:"capture_content", label:"Photo/video captured (when applicable) for storytelling", hint:"Use for future posts/recaps." }
+      ]
+    },
+    {
+      id: "signage",
+      title: "Signage & Visual Compliance",
+      subtitle: "Consistency and standards",
+      items: [
+        { id:"welcome_board", label:"Welcome boards updated daily", hint:"Fresh and relevant." },
+        { id:"commitment", label:"Commitment statements visible in focal areas", hint:"Supports trust and brand." },
+        { id:"station_signage", label:"Station signage consistent across platforms", hint:"No mixed formats." },
+        { id:"no_handwritten", label:"No handwritten/taped/non-approved signage visible", hint:"Replace with approved templates." }
+      ]
+    },
+    {
+      id: "team_alignment",
+      title: "Team Alignment & Brand Behavior",
+      subtitle: "Uniforms, training reinforcement, One & All vibe",
+      items: [
+        { id:"uniforms", label:"Uniforms align with position-based standards", hint:"Professional and consistent." },
+        { id:"appearance", label:"Staff appearance supports welcoming brand vibe", hint:"Approachable + polished." },
+        { id:"huddle_values", label:"One & All values reinforced in daily huddles", hint:"Make inclusion visible." }
+      ]
+    },
+    {
+      id: "measurement",
+      title: "Measurement & Continuous Improvement",
+      subtitle: "Close loops and build momentum",
+      items: [
+        { id:"feedback", label:"Guest feedback reviewed and categorized (wins/gaps)", hint:"Capture patterns." },
+        { id:"menu_compliance", label:"Menu compliance tracked (target 80%+)", hint:"Note reasons for variance." },
+        { id:"action_log", label:"Brand gaps logged with priority and owner", hint:"Turn observations into actions." }
+      ]
+    },
+    {
+      id: "sustainability",
+      title: "Sustainability & Responsibility",
+      subtitle: "Visible, accurate, and consistent messaging",
+      items: [
+        { id:"sustain_msg", label:"Sustainability messaging visible and accurate", hint:"Match what’s operationally true." },
+        { id:"togo", label:"To-go/disposables follow program expectations", hint:"No ad-hoc substitutions." },
+        { id:"waste", label:"Waste reduction / recovery efforts communicated appropriately", hint:"Show progress without over-claiming." }
+      ]
+    }
+  ];
 
-const checklist=document.getElementById("checklist");
-const state=JSON.parse(localStorage.getItem("rdChecklist")||"{}");
-
-items.forEach(text=>{
-  const id=text.replace(/\W/g,"");
-  const card=document.createElement("div");
-  card.className="card";
-  card.innerHTML=`
-    <div class="card-body item">
-      <div class="label">${text}</div>
-      <label class="toggle">
-        <input type="checkbox" ${state[id]?"checked":""}>
-        <span class="knob"></span>
-      </label>
-    </div>`;
-  const toggle=card.querySelector(".toggle");
-  const input=card.querySelector("input");
-  if(input.checked)toggle.classList.add("on");
-  input.onchange=()=>{
-    toggle.classList.toggle("on",input.checked);
-    state[id]=input.checked;
-    updateProgress();
-    localStorage.setItem("rdChecklist",JSON.stringify(state));
+  // --------- State ----------
+  const state = {
+    runDate: new Date().toISOString().slice(0,10),
+    site: "",
+    manager: "",
+    meal: "",
+    time: "",
+    overallNotes: "",
+    photoNotes: "",
+    actionsNext: "",
+    shareNotes: "",
+    photos: [], // {name, dataUrl}
+    checks: {}, // itemId -> true/false
+    comments: {} // itemId -> string
   };
-  checklist.appendChild(card);
-});
 
-function updateProgress(){
-  const total=items.length;
-  const done=Object.values(state).filter(Boolean).length;
-  document.getElementById("progressBar").style.width=(done/total*100)+"%";
-}
+  // --------- Helpers ----------
+  const $ = (id) => document.getElementById(id);
 
-function save(){
-  localStorage.setItem("rdChecklist",JSON.stringify(state));
-  alert("Saved locally");
-}
+  function pctComplete(){
+    const total = CHECKLIST.reduce((n,s)=>n+s.items.length,0);
+    const done = Object.values(state.checks).filter(Boolean).length;
+    return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+  }
 
-updateProgress();
+  function updateHeader(){
+    $("runDate").textContent = state.runDate;
+    $("siteName").textContent = state.site?.trim() ? state.site.trim() : "—";
+    const {pct} = pctComplete();
+    $("pct").textContent = pct + "%";
+    $("bar").style.width = pct + "%";
+  }
 
-const photoInput=document.getElementById("photoInput");
-const photoGrid=document.getElementById("photoGrid");
+  function persist(){
+    localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+    toast("Saved locally ✓");
+  }
 
-photoInput.onchange=()=>{
-  [...photoInput.files].forEach(file=>{
-    const r=new FileReader();
-    r.onload=()=>{
-      const d=document.createElement("div");
-      d.className="thumb";
-      d.innerHTML=`<img src="${r.result}"><div class="remove">×</div>`;
-      d.querySelector(".remove").onclick=()=>d.remove();
-      photoGrid.appendChild(d);
-    };
-    r.readAsDataURL(file);
+  function load(){
+    const raw = localStorage.getItem("rd_checklist_v1");
+    if(!raw) return;
+    try{
+      const saved = JSON.parse(raw);
+      Object.assign(state, saved);
+    }catch(e){}
+  }
+
+  function resetAll(){
+    localStorage.removeItem("rd_checklist_v1");
+    location.reload();
+  }
+
+  function toast(msg){
+    const t = document.createElement("div");
+    t.textContent = msg;
+    Object.assign(t.style,{
+      position:"fixed",left:"50%",bottom:"18px",transform:"translateX(-50%)",
+      background:"rgba(0,0,0,.75)",border:"1px solid rgba(255,255,255,.14)",
+      padding:"10px 12px",borderRadius:"14px",color:"#fff",fontWeight:"650",
+      zIndex:9999,boxShadow:"0 10px 25px rgba(0,0,0,.35)"
+    });
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .25s ease"}, 1300);
+    setTimeout(()=>t.remove(), 1650);
+  }
+
+  function exportJSON(){
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `resident-dining-checklist_${state.site || "site"}_${state.runDate}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function showSummary(){
+    const {total, done, pct} = pctComplete();
+    const missing = [];
+    for(const section of CHECKLIST){
+      for(const item of section.items){
+        if(!state.checks[item.id]) missing.push(item.label);
+      }
+    }
+    const top = missing.slice(0,8).map((m,i)=>`${i+1}. ${m}`).join("\n");
+    alert(
+`Summary
+Site: ${state.site || "—"}
+Date: ${state.runDate}
+Completion: ${done}/${total} (${pct}%)
+
+Top gaps (first 8):
+${top || "None — great work."}`
+    );
+  }
+
+  // --------- Render ----------
+  function render(){
+    const container = $("sections");
+    container.innerHTML = "";
+
+    CHECKLIST.forEach(section=>{
+      const card = document.createElement("section");
+      card.className = "card";
+
+      const head = document.createElement("div");
+      head.className = "card-h";
+      head.innerHTML = `
+        <div>
+          <h2>${section.title}</h2>
+          <div class="small" style="margin-top:6px">${section.subtitle || ""}</div>
+        </div>
+        <div class="meta">Tap bubbles • add comments</div>
+      `;
+      card.appendChild(head);
+
+      const body = document.createElement("div");
+      body.className = "card-b";
+
+      section.items.forEach(item=>{
+        const row = document.createElement("div");
+        row.className = "item";
+
+        const left = document.createElement("div");
+        left.className = "text";
+        left.innerHTML = `
+          <p class="label">${item.label}</p>
+          ${item.hint ? `<p class="hint">${item.hint}</p>` : ""}
+          <div class="subgrid">
+            <div class="field">
+              <label>Comment (optional)</label>
+              <textarea data-comment="${item.id}" placeholder="Note issues, wins, owner, due date...">${state.comments[item.id] || ""}</textarea>
+            </div>
+          </div>
+        `;
+
+        const toggle = document.createElement("label");
+        toggle.className = "toggle";
+        toggle.setAttribute("role","switch");
+        toggle.setAttribute("aria-label", item.label);
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = !!state.checks[item.id];
+
+        const knob = document.createElement("span");
+        knob.className = "knob";
+
+        toggle.appendChild(input);
+        toggle.appendChild(knob);
+
+        if(input.checked) toggle.classList.add("on");
+
+        input.addEventListener("change", ()=>{
+          state.checks[item.id] = input.checked;
+          toggle.classList.toggle("on", input.checked);
+          updateHeader();
+          // autosave lightly
+          localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        });
+
+        body.appendChild(row);
+        row.appendChild(left);
+        row.appendChild(toggle);
+      });
+
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+
+    // Wire comment changes
+    container.querySelectorAll("textarea[data-comment]").forEach(t=>{
+      t.addEventListener("input", ()=>{
+        const id = t.getAttribute("data-comment");
+        state.comments[id] = t.value;
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+      });
+    });
+
+    updateHeader();
+  }
+
+  // --------- Photos ----------
+  function addPhotos(files){
+    [...files].forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        state.photos.push({ name: file.name, dataUrl: reader.result });
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        renderPhotos();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotos(){
+    const grid = $("photoGrid");
+    grid.innerHTML = "";
+    state.photos.forEach((p, idx)=>{
+      const d = document.createElement("div");
+      d.className = "thumb";
+      d.innerHTML = `<img alt="photo ${idx+1}" src="${p.dataUrl}"><div class="x" title="Remove">✕</div>`;
+      d.querySelector(".x").addEventListener("click", ()=>{
+        state.photos.splice(idx,1);
+        localStorage.setItem("rd_checklist_v1", JSON.stringify(state));
+        renderPhotos();
+      });
+      grid.appendChild(d);
+    });
+  }
+
+  // --------- Init ----------
+  load();
+
+  // Fill fields
+  $("site").value = state.site || "";
+  $("manager").value = state.manager || "";
+  $("meal").value = state.meal || "";
+  $("time").value = state.time || "";
+  $("overallNotes").value = state.overallNotes || "";
+  $("photoNotes").value = state.photoNotes || "";
+  $("actionsNext").value = state.actionsNext || "";
+  $("shareNotes").value = state.shareNotes || "";
+
+  // Set display date
+  $("runDate").textContent = state.runDate;
+
+  // Field listeners
+  $("site").addEventListener("input", e=>{ state.site = e.target.value; updateHeader(); localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("manager").addEventListener("input", e=>{ state.manager = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("meal").addEventListener("input", e=>{ state.meal = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("time").addEventListener("input", e=>{ state.time = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("overallNotes").addEventListener("input", e=>{ state.overallNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("photoNotes").addEventListener("input", e=>{ state.photoNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("actionsNext").addEventListener("input", e=>{ state.actionsNext = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+  $("shareNotes").addEventListener("input", e=>{ state.shareNotes = e.target.value; localStorage.setItem("rd_checklist_v1", JSON.stringify(state)); });
+
+  // Buttons
+  $("btnSave").addEventListener("click", persist);
+  $("btnExport").addEventListener("click", exportJSON);
+  $("btnSummary").addEventListener("click", showSummary);
+  $("btnReset").addEventListener("click", ()=>{
+    if(confirm("Reset everything? This clears local saved data.")) resetAll();
   });
-};
-</script>
 
+  // Photo inputs
+  $("photoInputCamera").addEventListener("change", e=> addPhotos(e.target.files));
+  $("photoInputLibrary").addEventListener("change", e=> addPhotos(e.target.files));
+
+  // Render UI
+  render();
+  renderPhotos();
+  updateHeader();
+</script>
 </body>
 </html>
+
+
